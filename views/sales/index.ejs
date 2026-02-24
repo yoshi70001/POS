@@ -1,0 +1,311 @@
+<%- include('../layouts/header', { title: 'POS - Ventas' , activeTab: 'pos' }) %>
+
+
+
+    <div class="pos-container">
+        <!-- Lista de productos -->
+        <div class="products-section">
+            <div class="search-bar">
+                <input type="search" id="searchProducts" placeholder="🔍 Buscar productos..." class="search-input">
+            </div>
+
+            <div id="productsGrid" class="products-grid">
+                <% products.forEach(product=> { %>
+                    <div class="product-card" data-product-id="<%= product.id %>" data-name="<%= product.name %>"
+                        data-price="<%= product.price %>" data-stock="<%= product.stock %>">
+                        <div class="product-info">
+                            <h3 class="product-name">
+                                <%= product.name %>
+                            </h3>
+                            <p class="product-price">S/ <%= parseFloat(product.price).toFixed(2) %>
+                            </p>
+                            <p class="product-stock">Stock: <%= product.stock %>
+                            </p>
+                        </div>
+                        <button class="btn-add-product <%= product.stock <= 0 ? 'disabled' : '' %>" <%=product.stock <=0
+                            ? 'disabled' : '' %>>
+                            <%= product.stock> 0 ? '+' : '🚫' %>
+                        </button>
+                    </div>
+                    <% }) %>
+            </div>
+        </div>
+
+        <!-- Carrito -->
+        <div class="cart-section">
+            <div class="cart-header">
+                <h3>🛒 Carrito</h3>
+                <button id="clearCart" class="btn-icon">🗑️</button>
+            </div>
+
+            <div id="cartItems" class="cart-items">
+                <div class="empty-cart">
+                    <p>Carrito vacío</p>
+                    <small>Agrega productos para comenzar</small>
+                </div>
+            </div>
+
+            <div class="cart-totals">
+                <div class="total-row">
+                    <span>Subtotal:</span>
+                    <span id="subtotal">S/ 0.00</span>
+                </div>
+                <div class="total-row main-total">
+                    <span>Total:</span>
+                    <span id="total">S/ 0.00</span>
+                </div>
+            </div>
+
+            <div class="payment-section">
+                <div class="form-group">
+                    <label for="receivedAmount">Monto Recibido</label>
+                    <input type="number" id="receivedAmount" step="0.01" min="0" placeholder="0.00"
+                        class="form-input-lg">
+                </div>
+
+                <div class="change-display" id="changeDisplay">
+                    <span>Vuelto:</span>
+                    <span id="changeAmount">S/ 0.00</span>
+                </div>
+
+                <button id="processSale" class="btn btn-success btn-block btn-lg" disabled>
+                    Procesar Venta
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal de confirmación -->
+    <div id="confirmModal" class="modal" style="display: none;">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>Confirmar Venta</h3>
+            </div>
+            <div class="modal-body">
+                <div id="saleSummary"></div>
+            </div>
+            <div class="modal-footer">
+                <button id="cancelSale" class="btn btn-secondary">Cancelar</button>
+                <button id="confirmSale" class="btn btn-success">Confirmar</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let cart = [];
+        const products = <% - JSON.stringify(products) %>;
+
+        function updateCart() {
+            const cartItemsEl = document.getElementById('cartItems');
+            const subtotalEl = document.getElementById('subtotal');
+            const totalEl = document.getElementById('total');
+            const processBtn = document.getElementById('processSale');
+
+            if (cart.length === 0) {
+                cartItemsEl.innerHTML = '<div class="empty-cart"><p>Carrito vacío</p><small>Agrega productos para comenzar</small></div>';
+                subtotalEl.textContent = 'S/ 0.00';
+                totalEl.textContent = 'S/ 0.00';
+                processBtn.disabled = true;
+                return;
+            }
+
+            let html = '';
+            let total = 0;
+
+            cart.forEach((item, index) => {
+                const subtotal = item.price * item.quantity;
+                total += subtotal;
+
+                html += '<div class="cart-item">';
+                html += '<div class="item-info">';
+                html += '<h4>' + item.name + '</h4>';
+                html += '<p>S/ ' + item.price.toFixed(2) + ' x ' + item.quantity + '</p>';
+                html += '</div>';
+                html += '<div class="item-actions">';
+                html += '<button class="btn-qty" data-index="' + index + '" data-action="decrease">-</button>';
+                html += '<span>' + item.quantity + '</span>';
+                html += '<button class="btn-qty" data-index="' + index + '" data-action="increase">+</button>';
+                html += '<button class="btn-remove" data-index="' + index + '">🗑️</button>';
+                html += '</div>';
+                html += '<div class="item-subtotal">S/ ' + subtotal.toFixed(2) + '</div>';
+                html += '</div>';
+            });
+
+            cartItemsEl.innerHTML = html;
+            subtotalEl.textContent = 'S/ ' + total.toFixed(2);
+            totalEl.textContent = 'S/ ' + total.toFixed(2);
+            processBtn.disabled = false;
+
+            updateChange();
+        }
+
+        function addToCart(productId, name, price, stock) {
+            if (stock <= 0) return;
+
+            const existingItem = cart.find(item => item.productId === productId);
+
+            if (existingItem) {
+                if (existingItem.quantity < stock) {
+                    existingItem.quantity++;
+                }
+            } else {
+                cart.push({ productId, name, price, quantity: 1, maxStock: stock });
+            }
+
+            updateCart();
+        }
+
+        function removeFromCart(index) {
+            cart.splice(index, 1);
+            updateCart();
+        }
+
+        function changeQuantity(index, action) {
+            const item = cart[index];
+
+            if (action === 'increase') {
+                if (item.quantity < item.maxStock) {
+                    item.quantity++;
+                }
+            } else {
+                if (item.quantity > 1) {
+                    item.quantity--;
+                }
+            }
+
+            updateCart();
+        }
+
+        function updateChange() {
+            const total = cart.reduce((sum, item) => sum + (item.price * item.quantity), 0);
+            const received = parseFloat(document.getElementById('receivedAmount').value) || 0;
+            const change = received - total;
+
+            const changeEl = document.getElementById('changeAmount');
+
+            if (received > 0) {
+                changeEl.textContent = 'S/ ' + change.toFixed(2);
+                changeEl.className = change >= 0 ? 'positive' : 'negative';
+            } else {
+                changeEl.textContent = 'S/ 0.00';
+                changeEl.className = '';
+            }
+        }
+
+        document.addEventListener('DOMContentLoaded', function () {
+            // Agregar productos
+            document.querySelectorAll('.btn-add-product').forEach(btn => {
+                btn.addEventListener('click', function () {
+                    const card = this.closest('.product-card');
+                    const productId = parseInt(card.dataset.productId);
+                    const name = card.dataset.name;
+                    const price = parseFloat(card.dataset.price);
+                    const stock = parseInt(card.dataset.stock);
+
+                    addToCart(productId, name, price, stock);
+                });
+            });
+
+            // Buscar productos
+            document.getElementById('searchProducts').addEventListener('input', function () {
+                const query = this.value.toLowerCase();
+                document.querySelectorAll('.product-card').forEach(card => {
+                    const name = card.dataset.name.toLowerCase();
+                    card.style.display = name.includes(query) ? 'flex' : 'none';
+                });
+            });
+
+            // Eventos del carrito
+            document.getElementById('cartItems').addEventListener('click', function (e) {
+                if (e.target.classList.contains('btn-remove')) {
+                    removeFromCart(parseInt(e.target.dataset.index));
+                } else if (e.target.classList.contains('btn-qty')) {
+                    changeQuantity(
+                        parseInt(e.target.dataset.index),
+                        e.target.dataset.action
+                    );
+                }
+            });
+
+            document.getElementById('clearCart').addEventListener('click', function () {
+                if (cart.length > 0 && confirm('¿Limpiar carrito?')) {
+                    cart = [];
+                    updateCart();
+                }
+            });
+
+            document.getElementById('receivedAmount').addEventListener('input', updateChange);
+
+            // Procesar venta
+            document.getElementById('processSale').addEventListener('click', function () {
+                const total = cart.reduce((sum, item) => sum + (item.price * item.quantity), 0);
+                const received = parseFloat(document.getElementById('receivedAmount').value) || 0;
+
+                if (received < total) {
+                    alert('El monto recibido es insuficiente');
+                    return;
+                }
+
+                const change = received - total;
+
+                let html = '<div class="sale-summary">';
+                cart.forEach(item => {
+                    html += '<div class="summary-item">';
+                    html += '<span>' + item.name + ' x' + item.quantity + '</span>';
+                    html += '<span>S/ ' + (item.price * item.quantity).toFixed(2) + '</span>';
+                    html += '</div>';
+                });
+                html += '<div class="summary-total">';
+                html += '<span>Total:</span><span>S/ ' + total.toFixed(2) + '</span>';
+                html += '</div>';
+                html += '<div class="summary-total">';
+                html += '<span>Recibido:</span><span>S/ ' + received.toFixed(2) + '</span>';
+                html += '</div>';
+                html += '<div class="summary-total success">';
+                html += '<span>Vuelto:</span><span>S/ ' + change.toFixed(2) + '</span>';
+                html += '</div>';
+                html += '</div>';
+
+                document.getElementById('saleSummary').innerHTML = html;
+                document.getElementById('confirmModal').style.display = 'flex';
+            });
+
+            document.getElementById('confirmSale').addEventListener('click', async function () {
+                const total = cart.reduce((sum, item) => sum + (item.price * item.quantity), 0);
+                const received = parseFloat(document.getElementById('receivedAmount').value) || 0;
+
+                try {
+                    const response = await fetch('/sales/process', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({
+                            items: cart,
+                            paymentMethod: 'efectivo',
+                            receivedAmount: received
+                        })
+                    });
+
+                    const data = await response.json();
+
+                    if (data.success) {
+                        alert('✓ Venta procesada exitosamente\\nTotal: S/ ' + data.total.toFixed(2) + '\\nVuelto: S/ ' + data.change.toFixed(2));
+                        cart = [];
+                        document.getElementById('receivedAmount').value = '';
+                        updateCart();
+                        document.getElementById('confirmModal').style.display = 'none';
+                        location.reload();
+                    } else {
+                        alert('Error: ' + data.error);
+                    }
+                } catch (error) {
+                    alert('Error al procesar la venta');
+                }
+            });
+
+            document.getElementById('cancelSale').addEventListener('click', function () {
+                document.getElementById('confirmModal').style.display = 'none';
+            });
+        });
+    </script>
+
+    <%- include('../layouts/footer') %>

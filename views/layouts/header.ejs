@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title><%= typeof title !== 'undefined' ? title : 'POS Dulces' %></title>
+    <link rel="stylesheet" href="/css/style.css">
+    <meta name="description" content="Sistema POS para ventas de dulces">
+</head>
+<body>
+    <% if (typeof currentUser !== 'undefined' && currentUser) { %>
+    <nav class="navbar">
+        <div class="nav-container">
+            <div class="nav-brand">
+                <h1>🍬 POS Dulces</h1>
+            </div>
+            <div class="nav-user">
+                <span class="username"><%= currentUser.username %></span>
+                <a href="/auth/logout" class="btn-logout">Salir</a>
+            </div>
+        </div>
+    </nav>
+    
+    <nav class="bottom-nav">
+        <a href="/sales" class="nav-item <%= typeof activeTab !== 'undefined' && activeTab === 'pos' ? 'active' : '' %>">
+            <span class="nav-icon">🛒</span>
+            <span class="nav-label">POS</span>
+        </a>
+        <a href="/products" class="nav-item <%= typeof activeTab !== 'undefined' && activeTab === 'products' ? 'active' : '' %>">
+            <span class="nav-icon">📦</span>
+            <span class="nav-label">Productos</span>
+        </a>
+        <a href="/reports" class="nav-item <%= typeof activeTab !== 'undefined' && activeTab === 'reports' ? 'active' : '' %>">
+            <span class="nav-icon">📊</span>
+            <span class="nav-label">Reportes</span>
+        </a>
+        <a href="/cash-register/close" class="nav-item <%= typeof activeTab !== 'undefined' && activeTab === 'cash' ? 'active' : '' %>">
+            <span class="nav-icon">💰</span>
+            <span class="nav-label">Caja</span>
+        </a>
+    </nav>
+    <% } %>
+
+    <main class="<%= typeof currentUser !== 'undefined' && currentUser ? 'with-nav' : '' %>">

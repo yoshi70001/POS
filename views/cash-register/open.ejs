@@ -1,0 +1,40 @@
+<%- include('../layouts/header', { title: 'Abrir Caja - POS Dulces' , activeTab: 'cash' }) %>
+
+
+
+    <div class="container">
+        <div class="card">
+            <div class="card-header">
+                <h2>💰 Apertura de Caja</h2>
+            </div>
+
+            <% if (error) { %>
+                <div class="alert alert-error">
+                    <%= error %>
+                </div>
+                <% } %>
+
+                    <form method="POST" action="/cash-register/open" class="form">
+                        <div class="form-group">
+                            <label for="openingAmount">Monto Inicial (S/)</label>
+                            <input type="number" id="openingAmount" name="openingAmount" step="0.01" min="0" value="0"
+                                required placeholder="0.00">
+                            <small>Ingrese el monto de efectivo con el que inicia el turno</small>
+                        </div>
+
+                        <div class="form-actions">
+                            <button type="submit" class="btn btn-success btn-block btn-lg">
+                                Abrir Caja
+                            </button>
+                        </div>
+                    </form>
+        </div>
+
+        <div class="info-card">
+            <h3>ℹ️ Instrucciones</h3>
+            <p>Antes de iniciar ventas, debe abrir la caja registrando el monto inicial de efectivo.</p>
+            <p>Este monto se usará para calcular el cierre de caja al final del turno.</p>
+        </div>
+    </div>
+
+    <%- include('../layouts/footer') %>

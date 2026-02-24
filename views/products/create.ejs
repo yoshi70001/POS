@@ -1,0 +1,59 @@
+<%- include('../layouts/header', { title: 'Nuevo Producto - POS Dulces' , activeTab: 'products' }) %>
+
+
+
+    <div class="container">
+        <div class="page-header">
+            <h2>➕ Nuevo Producto</h2>
+            <a href="/products" class="btn btn-secondary">Volver</a>
+        </div>
+
+        <% if (typeof error !=='undefined' && error) { %>
+            <div class="alert alert-error">
+                <%= error %>
+            </div>
+            <% } %>
+
+                <div class="card">
+                    <form method="POST" action="/products" class="form">
+                        <div class="form-group">
+                            <label for="name">Nombre del Producto *</label>
+                            <input type="text" id="name" name="name" required placeholder="Ej: Chocolate Dulce"
+                                value="<%= typeof values !== 'undefined' ? values.name : '' %>">
+                        </div>
+
+                        <div class="form-group">
+                            <label for="description">Descripción</label>
+                            <textarea id="description" name="description" rows="3"
+                                placeholder="Descripción del producto..."><%= typeof values !== 'undefined' ? values.description : '' %></textarea>
+                        </div>
+
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="price">Precio (S/) *</label>
+                                <input type="number" id="price" name="price" step="0.01" min="0" required
+                                    placeholder="0.00" value="<%= typeof values !== 'undefined' ? values.price : '' %>">
+                            </div>
+
+                            <div class="form-group">
+                                <label for="stock">Stock Inicial *</label>
+                                <input type="number" id="stock" name="stock" min="0" required placeholder="0"
+                                    value="<%= typeof values !== 'undefined' ? values.stock : '' %>">
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="minStock">Stock Mínimo</label>
+                            <input type="number" id="minStock" name="minStock" min="0" value="5" placeholder="5">
+                            <small>Alerta cuando el stock baje de este valor</small>
+                        </div>
+
+                        <div class="form-actions">
+                            <a href="/products" class="btn btn-secondary">Cancelar</a>
+                            <button type="submit" class="btn btn-primary">Guardar Producto</button>
+                        </div>
+                    </form>
+                </div>
+    </div>
+
+    <%- include('../layouts/footer') %>

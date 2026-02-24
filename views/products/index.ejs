@@ -1,0 +1,57 @@
+<%- include('../layouts/header', { title: 'Productos - POS Dulces' , activeTab: 'products' }) %>
+
+
+
+    <div class="container">
+        <div class="page-header">
+            <h2>📦 Productos</h2>
+            <% if (currentUser.role==='admin' ) { %>
+                <a href="/products/create" class="btn btn-primary">+ Nuevo Producto</a>
+                <% } %>
+        </div>
+
+        <% if (lowStock && lowStock.length> 0) { %>
+            <div class="alert alert-warning">
+                <strong>⚠️ Alerta:</strong>
+                <%= lowStock.length %> productos con stock bajo
+            </div>
+            <% } %>
+
+                <div class="products-list">
+                    <% products.forEach(product=> { %>
+                        <div class="product-list-item <%= product.stock <= product.min_stock ? 'low-stock' : '' %>">
+                            <div class="product-details">
+                                <h3>
+                                    <%= product.name %>
+                                </h3>
+                                <p class="product-desc">
+                                    <%= product.description || 'Sin descripción' %>
+                                </p>
+                                <div class="product-meta">
+                                    <span class="price">S/ <%= parseFloat(product.price).toFixed(2) %></span>
+                                    <span class="stock <%= product.stock <= product.min_stock ? 'critical' : '' %>">
+                                        Stock: <%= product.stock %>
+                                    </span>
+                                </div>
+                            </div>
+                            <% if (currentUser.role==='admin' ) { %>
+                                <div class="product-actions">
+                                    <a href="/products/<%= product.id %>" class="btn-icon">👁️</a>
+                                    <a href="/products/<%= product.id %>/edit" class="btn-icon">✏️</a>
+                                </div>
+                                <% } %>
+                        </div>
+                        <% }) %>
+
+                            <% if (products.length===0) { %>
+                                <div class="empty-state">
+                                    <p>No hay productos registrados</p>
+                                    <% if (currentUser.role==='admin' ) { %>
+                                        <a href="/products/create" class="btn btn-primary">Crear Producto</a>
+                                        <% } %>
+                                </div>
+                                <% } %>
+                </div>
+    </div>
+
+    <%- include('../layouts/footer') %>

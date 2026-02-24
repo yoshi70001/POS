@@ -1,0 +1,57 @@
+<%- include('../layouts/header', { title: 'Editar Producto - POS Dulces' , activeTab: 'products' }) %>
+
+
+
+    <div class="container">
+        <div class="page-header">
+            <h2>✏️ Editar Producto</h2>
+            <a href="/products" class="btn btn-secondary">Volver</a>
+        </div>
+
+        <% if (typeof error !=='undefined' && error) { %>
+            <div class="alert alert-error">
+                <%= error %>
+            </div>
+            <% } %>
+
+                <div class="card">
+                    <form method="POST" action="/products/<%= product.id %>?_method=PUT" class="form">
+                        <div class="form-group">
+                            <label for="name">Nombre del Producto *</label>
+                            <input type="text" id="name" name="name" required value="<%= product.name %>">
+                        </div>
+
+                        <div class="form-group">
+                            <label for="description">Descripción</label>
+                            <textarea id="description" name="description"
+                                rows="3"><%= product.description || '' %></textarea>
+                        </div>
+
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="price">Precio (S/) *</label>
+                                <input type="number" id="price" name="price" step="0.01" min="0" required
+                                    value="<%= product.price %>">
+                            </div>
+
+                            <div class="form-group">
+                                <label for="stock">Stock Actual *</label>
+                                <input type="number" id="stock" name="stock" min="0" required
+                                    value="<%= product.stock %>">
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="minStock">Stock Mínimo</label>
+                            <input type="number" id="minStock" name="minStock" min="0" value="<%= product.min_stock %>">
+                        </div>
+
+                        <div class="form-actions">
+                            <a href="/products" class="btn btn-secondary">Cancelar</a>
+                            <button type="submit" class="btn btn-primary">Actualizar Producto</button>
+                        </div>
+                    </form>
+                </div>
+    </div>
+
+    <%- include('../layouts/footer') %>

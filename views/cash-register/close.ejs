@@ -1,0 +1,82 @@
+<%- include('../layouts/header', { title: 'Cerrar Caja - POS Dulces' , activeTab: 'cash' }) %>
+
+
+
+    <div class="container">
+        <div class="card">
+            <div class="card-header">
+                <h2>💰 Cierre de Caja</h2>
+            </div>
+
+            <div class="cash-summary">
+                <div class="summary-item">
+                    <span class="label">Apertura</span>
+                    <span class="value">S/ <%= parseFloat(cashRegister.opening_amount).toFixed(2) %></span>
+                </div>
+
+                <div class="summary-item">
+                    <span class="label">Ventas del Turno</span>
+                    <span class="value success">S/ <%= parseFloat(totalSales).toFixed(2) %></span>
+                </div>
+
+                <div class="summary-item total">
+                    <span class="label">Total Esperado</span>
+                    <span class="value primary">S/ <%= parseFloat(expectedAmount).toFixed(2) %></span>
+                </div>
+            </div>
+
+            <form method="POST" action="/cash-register/close/<%= cashRegister.id %>" class="form">
+                <div class="form-group">
+                    <label for="closingAmount">Monto Real en Caja (S/)</label>
+                    <input type="number" id="closingAmount" name="closingAmount" step="0.01" min="0" required
+                        placeholder="Ingrese el monto real contado" class="form-input-lg">
+                    <small>Cuente el efectivo real en caja y regístrelo aquí</small>
+                </div>
+
+                <div class="form-group">
+                    <label for="notes">Notas (opcional)</label>
+                    <textarea id="notes" name="notes" rows="3" placeholder="Observaciones sobre el turno..."></textarea>
+                </div>
+
+                <div class="difference-preview" id="differencePreview" style="display: none;">
+                    <div class="difference-value" id="differenceValue"></div>
+                </div>
+
+                <div class="form-actions">
+                    <button type="submit" class="btn btn-danger btn-block btn-lg">
+                        Cerrar Caja
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        const closingAmountInput = document.getElementById('closingAmount');
+        const differencePreview = document.getElementById('differencePreview');
+        const differenceValue = document.getElementById('differenceValue');
+        const expectedAmount = <%= expectedAmount %>;
+
+        closingAmountInput.addEventListener('input', function () {
+            const closingAmount = parseFloat(this.value);
+            if (!isNaN(closingAmount)) {
+                const difference = closingAmount - expectedAmount;
+                differencePreview.style.display = 'block';
+
+                if (difference === 0) {
+                    differenceValue.className = 'difference-value neutral';
+                    differenceValue.innerHTML = '✓ Caja exacta';
+                } else if (difference > 0) {
+                    differenceValue.className = 'difference-value positive';
+                    differenceValue.innerHTML = '+ S/ ' + difference.toFixed(2) + ' (Sobrante)';
+                } else {
+                    differenceValue.className = 'difference-value negative';
+                    differenceValue.innerHTML = '- S/ ' + Math.abs(difference).toFixed(2) + ' (Faltante)';
+                }
+            } else {
+                differencePreview.style.display = 'none';
+            }
+        });
+    </script>
+
+    <%- include('../layouts/footer') %>

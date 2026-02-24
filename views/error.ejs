@@ -1,0 +1,15 @@
+<%- include('layouts/header', { title: 'Error - POS Dulces' }) %>
+
+
+    <div class="container">
+        <div class="error-page">
+            <div class="error-icon">❌</div>
+            <h1>Oops!</h1>
+            <p>
+                <%= error %>
+            </p>
+            <a href="/" class="btn btn-primary">Volver al Inicio</a>
+        </div>
+    </div>
+
+    <%- include('layouts/footer') %>

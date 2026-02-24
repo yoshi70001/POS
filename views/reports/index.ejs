@@ -1,0 +1,135 @@
+<%- include('../layouts/header', { title: 'Dashboard - POS Dulces' , activeTab: 'reports' }) %>
+
+
+
+    <div class="container">
+        <div class="page-header">
+            <h2>📊 Dashboard</h2>
+        </div>
+
+        <!-- Tarjetas de resumen -->
+        <div class="stats-grid">
+            <div class="stat-card">
+                <div class="stat-icon">💰</div>
+                <div class="stat-content">
+                    <h3>Ventas Hoy</h3>
+                    <p class="stat-value">S/ <%= parseFloat(todaySales).toFixed(2) %>
+                    </p>
+                </div>
+            </div>
+
+            <div class="stat-card">
+                <div class="stat-icon">📦</div>
+                <div class="stat-content">
+                    <h3>Total Productos</h3>
+                    <p class="stat-value">
+                        <%= inventorySummary.total_products || 0 %>
+                    </p>
+                </div>
+            </div>
+
+            <div class="stat-card">
+                <div class="stat-icon">🔔</div>
+                <div class="stat-content">
+                    <h3>Stock Bajo</h3>
+                    <p class="stat-value warning">
+                        <%= inventorySummary.low_stock_count || 0 %>
+                    </p>
+                </div>
+            </div>
+
+            <% if (activeRegister) { %>
+                <div class="stat-card">
+                    <div class="stat-icon">🟢</div>
+                    <div class="stat-content">
+                        <h3>Caja Abierta</h3>
+                        <p class="stat-value small">Por <%= activeRegister.username %>
+                        </p>
+                    </div>
+                </div>
+                <% } else { %>
+                    <div class="stat-card">
+                        <div class="stat-icon">🔴</div>
+                        <div class="stat-content">
+                            <h3>Caja Cerrada</h3>
+                            <p class="stat-value small">Sin turno activo</p>
+                        </div>
+                    </div>
+                    <% } %>
+        </div>
+
+        <!-- Productos más vendidos -->
+        <div class="card">
+            <div class="card-header">
+                <h3>🏆 Productos Más Vendidos Hoy</h3>
+            </div>
+
+            <% if (topProducts && topProducts.length> 0) { %>
+                <div class="top-products-list">
+                    <% topProducts.forEach((product, index)=> { %>
+                        <div class="top-product-item">
+                            <span class="rank">
+                                <%= index + 1 %>
+                            </span>
+                            <div class="product-info">
+                                <h4>
+                                    <%= product.name %>
+                                </h4>
+                                <p>
+                                    <%= product.total_quantity %> vendidos
+                                </p>
+                            </div>
+                            <div class="product-total">
+                                S/ <%= parseFloat(product.total_sales).toFixed(2) %>
+                            </div>
+                        </div>
+                        <% }) %>
+                </div>
+                <% } else { %>
+                    <div class="empty-state">
+                        <p>No hay ventas registradas hoy</p>
+                    </div>
+                    <% } %>
+        </div>
+
+        <!-- Productos con stock bajo -->
+        <% if (lowStockProducts && lowStockProducts.length> 0) { %>
+            <div class="card warning-card">
+                <div class="card-header">
+                    <h3>⚠️ Productos con Stock Bajo</h3>
+                </div>
+
+                <div class="low-stock-list">
+                    <% lowStockProducts.forEach(product=> { %>
+                        <div class="low-stock-item">
+                            <div class="product-info">
+                                <h4>
+                                    <%= product.name %>
+                                </h4>
+                                <p>Stock actual: <strong>
+                                        <%= product.stock %>
+                                    </strong> (Mínimo: <%= product.min_stock %>)</p>
+                            </div>
+                        </div>
+                        <% }) %>
+                </div>
+
+                <% if (currentUser.role==='admin' ) { %>
+                    <div class="card-footer">
+                        <a href="/products" class="btn btn-primary btn-sm">Ver Productos</a>
+                    </div>
+                    <% } %>
+            </div>
+            <% } %>
+
+                <!-- Accesos rápidos -->
+                <div class="quick-actions">
+                    <a href="/reports/sales" class="btn btn-secondary">📈 Ver Reporte de Ventas</a>
+                    <a href="/reports/inventory" class="btn btn-secondary">📦 Ver Inventario</a>
+                    <% if (currentUser.role==='admin' ) { %>
+                        <a href="/reports/cash-registers" class="btn btn-secondary">💰 Ver Cajas</a>
+                        <% } %>
+                </div>
+    </div>
+
+    <%- include('../layouts/footer') %>
