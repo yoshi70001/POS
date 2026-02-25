@@ -1,0 +1,114 @@
+<%- include('../layouts/header', { title: 'Turno de Caja #' + cashRegister.id + ' - POS Dulces', activeTab: 'cash' }) %>
+
+    <div class="container">
+        <div class="page-header">
+            <h2>💰 Detalles del Turno #<%= cashRegister.id %></h2>
+            <a href="/cash-register/history/all" class="btn btn-secondary">← Volver al Historial</a>
+        </div>
+
+        <div class="cash-register-details">
+            <div class="card">
+                <div class="card-header">
+                    <h3>Información del Turno</h3>
+                </div>
+                <div class="card-body">
+                    <div class="detail-row">
+                        <span class="label">Estado:</span>
+                        <span class="value status <%= cashRegister.status === 'abierta' ? 'status-open' : 'status-closed' %>">
+                            <%= cashRegister.status === 'abierta' ? '🟢 Abierta' : '🔴 Cerrada' %>
+                        </span>
+                    </div>
+                    <div class="detail-row">
+                        <span class="label">Cajero:</span>
+                        <span class="value">👤 <%= cashRegister.username %></span>
+                    </div>
+                    <div class="detail-row">
+                        <span class="label">Apertura:</span>
+                        <span class="value">
+                            <%= new Date(cashRegister.opening_time).toLocaleString('es-PE') %>
+                        </span>
+                    </div>
+                    <% if (cashRegister.status === 'cerrada') { %>
+                        <div class="detail-row">
+                            <span class="label">Cierre:</span>
+                            <span class="value">
+                                <%= new Date(cashRegister.closing_time).toLocaleString('es-PE') %>
+                            </span>
+                        </div>
+                    <% } %>
+                    <div class="detail-row">
+                        <span class="label">Monto Inicial:</span>
+                        <span class="value">S/ <%= parseFloat(cashRegister.opening_amount).toFixed(2) %></span>
+                    </div>
+                    <% if (cashRegister.status === 'cerrada') { %>
+                        <div class="detail-row">
+                            <span class="label">Monto Final:</span>
+                            <span class="value">S/ <%= parseFloat(cashRegister.closing_amount).toFixed(2) %></span>
+                        </div>
+                        <% if (cashRegister.difference !== null) { %>
+                            <div class="detail-row <%= cashRegister.difference === 0 ? 'success' : cashRegister.difference > 0 ? 'warning' : 'danger' %>">
+                                <span class="label">Diferencia:</span>
+                                <span class="value">
+                                    <%= cashRegister.difference === 0 ? '✓ Exacto' : (cashRegister.difference > 0 ? '+ ' : '- ') + 'S/ ' + Math.abs(cashRegister.difference).toFixed(2) %>
+                                </span>
+                            </div>
+                        <% } %>
+                        <% if (cashRegister.notes) { %>
+                            <div class="detail-row">
+                                <span class="label">Notas:</span>
+                                <span class="value"><%= cashRegister.notes %></span>
+                            </div>
+                        <% } %>
+                    <% } %>
+                </div>
+            </div>
+
+            <div class="card">
+                <div class="card-header">
+                    <h3>Ventas del Turno (<%= sales.length %>)</h3>
+                </div>
+                <div class="card-body">
+                    <% if (sales.length > 0) { %>
+                        <div class="sales-list">
+                            <% sales.forEach(sale => { %>
+                                <div class="sale-item" onclick="window.location='/sales/<%= sale.id %>'">
+                                    <div class="sale-info">
+                                        <div class="sale-id">#<%= sale.id %></div>
+                                        <div class="sale-date">
+                                            <%= new Date(sale.created_at).toLocaleString('es-PE') %>
+                                        </div>
+                                    </div>
+                                    <div class="sale-amount">
+                                        <div class="total-amount">S/ <%= parseFloat(sale.total).toFixed(2) %></div>
+                                    </div>
+                                </div>
+                            <% }) %>
+                        </div>
+                        
+                        <div class="turno-total">
+                            <span class="total-label">Total Ventas:</span>
+                            <span class="total-amount">
+                                S/ <%= sales.reduce((sum, sale) => sum + parseFloat(sale.total), 0).toFixed(2) %>
+                            </span>
+                        </div>
+                    <% } else { %>
+                        <div class="empty-state">
+                            <p>No hay ventas registradas en este turno</p>
+                        </div>
+                    <% } %>
+                </div>
+            </div>
+
+            <div class="actions">
+                <% if (cashRegister.status === 'abierta') { %>
+                    <a href="/cash-register/close" class="btn btn-danger">Cerrar Caja</a>
+                    <a href="/" class="btn btn-primary">Ir al POS</a>
+                <% } else { %>
+                    <button onclick="window.print()" class="btn btn-primary">🖨️ Imprimir Reporte</button>
+                    <a href="/" class="btn btn-success">Nueva Venta</a>
+                <% } %>
+            </div>
+        </div>
+    </div>
+
+    <%- include('../layouts/footer') %>

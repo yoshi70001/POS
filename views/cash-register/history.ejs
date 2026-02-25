@@ -1,0 +1,60 @@
+<%- include('../layouts/header', { title: 'Historial de Cajas - POS Dulces', activeTab: 'cash' }) %>
+
+    <div class="container">
+        <div class="page-header">
+            <h2>📊 Historial de Turnos de Caja</h2>
+            <a href="/" class="btn btn-secondary">← Volver al POS</a>
+        </div>
+
+        <% if (registers.length > 0) { %>
+            <div class="cash-registers-list">
+                <% registers.forEach(register => { %>
+                    <div class="cash-register-item" onclick="window.location='/cash-register/<%= register.id %>'">
+                        <div class="register-info">
+                            <div class="register-id">Turno #<%= register.id %></div>
+                            <div class="register-date">
+                                <%= new Date(register.opening_time).toLocaleDateString('es-PE') %>
+                            </div>
+                            <div class="register-user">
+                                👤 <%= register.username %>
+                            </div>
+                        </div>
+                        <div class="register-status">
+                            <span class="status-badge <%= register.status === 'abierta' ? 'status-open' : 'status-closed' %>">
+                                <%= register.status === 'abierta' ? '🟢 Abierta' : '🔴 Cerrada' %>
+                            </span>
+                        </div>
+                        <div class="register-amounts">
+                            <div class="amount-row">
+                                <span>Apertura:</span>
+                                <span>S/ <%= parseFloat(register.opening_amount).toFixed(2) %></span>
+                            </div>
+                            <% if (register.status === 'cerrada') { %>
+                                <div class="amount-row">
+                                    <span>Cierre:</span>
+                                    <span>S/ <%= parseFloat(register.closing_amount).toFixed(2) %></span>
+                                </div>
+                                <% if (register.difference !== null) { %>
+                                    <div class="amount-row <%= register.difference === 0 ? 'success' : register.difference > 0 ? 'warning' : 'danger' %>">
+                                        <span>Diferencia:</span>
+                                        <span>
+                                            <%= register.difference === 0 ? '✓ Exacto' : (register.difference > 0 ? '+ ' : '- ') + 'S/ ' + Math.abs(register.difference).toFixed(2) %>
+                                        </span>
+                                    </div>
+                                <% } %>
+                            <% } %>
+                        </div>
+                    </div>
+                <% }) %>
+            </div>
+        <% } else { %>
+            <div class="empty-state">
+                <div class="empty-icon">💰</div>
+                <h3>No hay turnos registrados</h3>
+                <p>Los turnos de caja aparecerán aquí cuando se abran o cierren</p>
+                <a href="/cash-register/open" class="btn btn-primary">Abrir Caja</a>
+            </div>
+        <% } %>
+    </div>
+
+    <%- include('../layouts/footer') %>

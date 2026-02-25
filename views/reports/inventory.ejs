@@ -1,0 +1,115 @@
+<%- include('../layouts/header', { title: 'Reporte de Inventario - POS Dulces', activeTab: 'reports' }) %>
+
+    <div class="container">
+        <div class="page-header">
+            <h2>📦 Reporte de Inventario</h2>
+            <a href="/reports" class="btn btn-secondary">← Volver a Reportes</a>
+        </div>
+
+        <div class="inventory-summary">
+            <div class="summary-cards">
+                <div class="summary-card">
+                    <div class="card-icon">📊</div>
+                    <div class="card-content">
+                        <div class="card-title">Total Productos</div>
+                        <div class="card-value"><%= summary.totalProducts || 0 %></div>
+                    </div>
+                </div>
+                <div class="summary-card warning">
+                    <div class="card-icon">⚠️</div>
+                    <div class="card-content">
+                        <div class="card-title">Stock Bajo</div>
+                        <div class="card-value"><%= lowStockProducts.length || 0 %></div>
+                    </div>
+                </div>
+                <div class="summary-card">
+                    <div class="card-icon">💰</div>
+                    <div class="card-content">
+                        <div class="card-title">Valor Total</div>
+                        <div class="card-value">S/ <%= (summary.totalValue || 0).toFixed(2) %></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <% if (lowStockProducts && lowStockProducts.length > 0) { %>
+            <div class="card alert-section">
+                <div class="card-header alert-header">
+                    <h3>⚠️ Productos con Stock Bajo</h3>
+                </div>
+                <div class="card-body">
+                    <div class="low-stock-list">
+                        <% lowStockProducts.forEach(product => { %>
+                            <div class="low-stock-item">
+                                <div class="product-info">
+                                    <div class="product-name"><%= product.name %></div>
+                                    <div class="product-details">
+                                        Stock actual: <strong><%= product.stock %></strong> 
+                                        (Mínimo: <%= product.min_stock %>)
+                                    </div>
+                                </div>
+                                <div class="product-action">
+                                    <a href="/products/<%= product.id %>/edit" class="btn btn-sm btn-warning">
+                                        Reponer
+                                    </a>
+                                </div>
+                            </div>
+                        <% }) %>
+                    </div>
+                </div>
+            </div>
+        <% } %>
+
+        <div class="card">
+            <div class="card-header">
+                <h3>📋 Movimientos de Inventario Recientes</h3>
+            </div>
+            <div class="card-body">
+                <% if (movements && movements.length > 0) { %>
+                    <div class="movements-table">
+                        <table class="table">
+                            <thead>
+                                <tr>
+                                    <th>Fecha</th>
+                                    <th>Producto</th>
+                                    <th>Tipo</th>
+                                    <th>Cantidad</th>
+                                    <th>Stock Anterior</th>
+                                    <th>Stock Nuevo</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <% movements.forEach(movement => { %>
+                                    <tr>
+                                        <td>
+                                            <%= new Date(movement.created_at).toLocaleString('es-PE') %>
+                                        </td>
+                                        <td><%= movement.product_name %></td>
+                                        <td>
+                                            <span class="movement-type <%= movement.movement_type === 'venta' ? 'type-out' : 'type-in' %>">
+                                                <%= movement.movement_type === 'venta' ? '🔻 Salida' : '🔺 Entrada' %>
+                                            </span>
+                                        </td>
+                                        <td><%= movement.quantity %></td>
+                                        <td><%= movement.previous_stock %></td>
+                                        <td><%= movement.new_stock %></td>
+                                    </tr>
+                                <% }) %>
+                            </tbody>
+                        </table>
+                    </div>
+                <% } else { %>
+                    <div class="empty-state">
+                        <p>No hay movimientos registrados</p>
+                    </div>
+                <% } %>
+            </div>
+        </div>
+
+        <div class="actions">
+            <a href="/products" class="btn btn-primary">Ver Productos</a>
+            <button onclick="window.print()" class="btn btn-secondary">🖨️ Imprimir Reporte</button>
+        </div>
+    </div>
+
+    <%- include('../layouts/footer') %>

@@ -1,0 +1,113 @@
+<%- include('../layouts/header', { title: product.name + ' - Productos', activeTab: 'products' }) %>
+
+    <div class="container">
+        <div class="page-header">
+            <h2>📦 Detalle del Producto</h2>
+            <a href="/products" class="btn btn-secondary">← Volver a Productos</a>
+        </div>
+
+        <div class="product-details">
+            <div class="card">
+                <div class="card-header">
+                    <h3><%= product.name %></h3>
+                    <span class="stock-badge <%= product.stock <= product.min_stock ? 'low' : 'ok' %>">
+                        <%= product.stock <= product.min_stock ? '⚠️ Stock Bajo' : '✓ Stock OK' %>
+                    </span>
+                </div>
+                <div class="card-body">
+                    <div class="product-info-grid">
+                        <div class="info-item">
+                            <span class="label">Descripción:</span>
+                            <span class="value"><%= product.description || 'Sin descripción' %></span>
+                        </div>
+                        <div class="info-item">
+                            <span class="label">Precio:</span>
+                            <span class="value price">S/ <%= parseFloat(product.price).toFixed(2) %></span>
+                        </div>
+                        <div class="info-item">
+                            <span class="label">Stock Actual:</span>
+                            <span class="value <%= product.stock <= product.min_stock ? 'warning' : 'success' %>">
+                                <%= product.stock %> unidades
+                            </span>
+                        </div>
+                        <div class="info-item">
+                            <span class="label">Stock Mínimo:</span>
+                            <span class="value"><%= product.min_stock %> unidades</span>
+                        </div>
+                        <div class="info-item">
+                            <span class="label">Estado:</span>
+                            <span class="value">
+                                <%= product.stock > 0 ? '🟢 Disponible' : '🔴 Agotado' %>
+                            </span>
+                        </div>
+                        <div class="info-item">
+                            <span class="label">Valor Total:</span>
+                            <span class="value">S/ <%= (parseFloat(product.price) * parseInt(product.stock)).toFixed(2) %></span>
+                        </div>
+                    </div>
+
+                    <% if (product.stock <= product.min_stock) { %>
+                        <div class="alert alert-warning">
+                            <strong>⚠️ Atención:</strong> Este producto tiene stock bajo. 
+                            Considere reponerlo pronto.
+                        </div>
+                    <% } %>
+
+                    <% if (product.stock === 0) { %>
+                        <div class="alert alert-danger">
+                            <strong>🚫 Agotado:</strong> Este producto está sin stock.
+                        </div>
+                    <% } %>
+                </div>
+            </div>
+
+            <div class="actions">
+                <% if (currentUser.role === 'admin') { %>
+                    <a href="/products/<%= product.id %>/edit" class="btn btn-primary">✏️ Editar</a>
+                <% } %>
+                <a href="/sales" class="btn btn-success">🛒 Vender</a>
+                <button onclick="window.print()" class="btn btn-secondary">🖨️ Imprimir</button>
+            </div>
+
+            <% if (currentUser.role === 'admin') { %>
+                <div class="danger-zone">
+                    <h3>Zona de Peligro</h3>
+                    <p>Eliminar este producto es una acción permanente.</p>
+                    <button onclick="deleteProduct(<%= product.id %>)" class="btn btn-danger">
+                        🗑️ Eliminar Producto
+                    </button>
+                </div>
+            <% } %>
+        </div>
+    </div>
+
+    <% if (currentUser.role === 'admin') { %>
+        <script>
+            async function deleteProduct(productId) {
+                if (!confirm('¿Estás seguro de que deseas eliminar este producto? Esta acción no se puede deshacer.')) {
+                    return;
+                }
+
+                try {
+                    const response = await fetch('/products/' + productId, {
+                        method: 'DELETE',
+                        headers: {
+                            'Content-Type': 'application/json'
+                        }
+                    });
+
+                    if (response.ok) {
+                        alert('Producto eliminado exitosamente');
+                        window.location.href = '/products';
+                    } else {
+                        const data = await response.json();
+                        alert('Error al eliminar: ' + (data.error || 'Error desconocido'));
+                    }
+                } catch (error) {
+                    alert('Error al eliminar el producto');
+                }
+            }
+        </script>
+    <% } %>
+
+    <%- include('../layouts/footer') %>

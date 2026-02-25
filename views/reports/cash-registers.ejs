@@ -1,0 +1,122 @@
+<%- include('../layouts/header', { title: 'Reporte de Cajas - POS Dulces', activeTab: 'reports' }) %>
+
+    <div class="container">
+        <div class="page-header">
+            <h2>💰 Reporte de Turnos de Caja</h2>
+            <a href="/reports" class="btn btn-secondary">← Volver a Reportes</a>
+        </div>
+
+        <% if (registers && registers.length > 0) { %>
+            <div class="cash-registers-report">
+                <div class="report-summary-cards">
+                    <div class="summary-card">
+                        <div class="card-icon">📊</div>
+                        <div class="card-content">
+                            <div class="card-title">Total Turnos</div>
+                            <div class="card-value"><%= registers.length %></div>
+                        </div>
+                    </div>
+                    <div class="summary-card">
+                        <div class="card-icon">💵</div>
+                        <div class="card-content">
+                            <div class="card-title">Total Ventas</div>
+                            <div class="card-value">
+                                S/ <%= registers.reduce((sum, r) => {
+                                    const sales = parseFloat(r.total_sales) || 0;
+                                    return sum + sales;
+                                }, 0).toFixed(2) %>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="summary-card">
+                        <div class="card-icon">✅</div>
+                        <div class="card-content">
+                            <div class="card-title">Cerrados</div>
+                            <div class="card-value">
+                                <%= registers.filter(r => r.status === 'cerrada').length %>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="summary-card warning">
+                        <div class="card-icon">🟢</div>
+                        <div class="card-content">
+                            <div class="card-title">Abiertos</div>
+                            <div class="card-value">
+                                <%= registers.filter(r => r.status === 'abierta').length %>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <div class="card-header">
+                        <h3>Detalle de Turnos</h3>
+                    </div>
+                    <div class="card-body">
+                        <div class="registers-table">
+                            <table class="table">
+                                <thead>
+                                    <tr>
+                                        <th>ID</th>
+                                        <th>Cajero</th>
+                                        <th>Fecha Apertura</th>
+                                        <th>Estado</th>
+                                        <th>Monto Inicial</th>
+                                        <th>Ventas</th>
+                                        <th>Diferencia</th>
+                                        <th>Acciones</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <% registers.forEach(register => { %>
+                                        <tr>
+                                            <td>#<%= register.id %></td>
+                                            <td><%= register.username %></td>
+                                            <td>
+                                                <%= new Date(register.opening_time).toLocaleString('es-PE') %>
+                                            </td>
+                                            <td>
+                                                <span class="status-badge <%= register.status === 'abierta' ? 'status-open' : 'status-closed' %>">
+                                                    <%= register.status === 'abierta' ? '🟢 Abierta' : '🔴 Cerrada' %>
+                                                </span>
+                                            </td>
+                                            <td>
+                                                S/ <%= parseFloat(register.opening_amount).toFixed(2) %>
+                                            </td>
+                                            <td>
+                                                S/ <%= (register.total_sales || 0).toFixed(2) %>
+                                            </td>
+                                            <td class="<%= register.difference === 0 ? 'success' : register.difference > 0 ? 'warning' : 'danger' %>">
+                                                <% if (register.difference !== null) { %>
+                                                    <%= register.difference === 0 ? '✓' : (register.difference > 0 ? '+' : '-') + 'S/ ' + Math.abs(register.difference).toFixed(2) %>
+                                                <% } else { %>
+                                                    -
+                                                <% } %>
+                                            </td>
+                                            <td>
+                                                <a href="/cash-register/<%= register.id %>" class="btn-icon">👁️</a>
+                                            </td>
+                                        </tr>
+                                    <% }) %>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        <% } else { %>
+            <div class="empty-state">
+                <div class="empty-icon">💰</div>
+                <h3>No hay turnos de caja registrados</h3>
+                <p>Los turnos de caja aparecerán aquí cuando se abran o cierren</p>
+                <a href="/cash-register/open" class="btn btn-primary">Abrir Caja</a>
+            </div>
+        <% } %>
+
+        <div class="actions">
+            <a href="/cash-register/history/all" class="btn btn-primary">Ver Historial Completo</a>
+            <button onclick="window.print()" class="btn btn-secondary">🖨️ Imprimir Reporte</button>
+        </div>
+    </div>
+
+    <%- include('../layouts/footer') %>

@@ -1,0 +1,41 @@
+<%- include('../layouts/header', { title: 'Historial de Ventas - POS Dulces', activeTab: 'pos' }) %>
+
+    <div class="container">
+        <div class="page-header">
+            <h2>📜 Historial de Ventas</h2>
+            <a href="/sales" class="btn btn-secondary">← Volver al POS</a>
+        </div>
+
+        <% if (sales.length > 0) { %>
+            <div class="sales-list">
+                <% sales.forEach(sale => { %>
+                    <div class="sale-item" onclick="window.location='/sales/<%= sale.id %>'">
+                        <div class="sale-info">
+                            <div class="sale-id">Venta #<%= sale.id %></div>
+                            <div class="sale-date">
+                                <%= new Date(sale.created_at).toLocaleString('es-PE') %>
+                            </div>
+                            <div class="sale-user">
+                                👤 <%= sale.username %>
+                            </div>
+                        </div>
+                        <div class="sale-amount">
+                            <div class="total-amount">S/ <%= parseFloat(sale.total).toFixed(2) %></div>
+                            <div class="payment-method">
+                                <%= sale.payment_method === 'efectivo' ? '💵 Efectivo' : '💳 Tarjeta' %>
+                            </div>
+                        </div>
+                    </div>
+                <% }) %>
+            </div>
+        <% } else { %>
+            <div class="empty-state">
+                <div class="empty-icon">📦</div>
+                <h3>No hay ventas registradas</h3>
+                <p>Comienza a realizar ventas desde el POS</p>
+                <a href="/sales" class="btn btn-primary">Ir al POS</a>
+            </div>
+        <% } %>
+    </div>
+
+    <%- include('../layouts/footer') %>

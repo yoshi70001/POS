@@ -1,0 +1,52 @@
+<%- include('../layouts/header', { title: 'Cierre de Caja - POS Dulces', activeTab: 'cash' }) %>
+
+    <div class="container">
+        <div class="page-header">
+            <h2>✅ Cierre de Caja Exitoso</h2>
+        </div>
+
+        <div class="success-message">
+            <div class="success-icon">💰</div>
+            <h3>Turno de caja cerrado correctamente</h3>
+        </div>
+
+        <div class="cash-register-summary">
+            <div class="card">
+                <div class="card-header">
+                    <h3>Resumen del Turno</h3>
+                </div>
+                <div class="card-body">
+                    <div class="summary-row">
+                        <span class="label">Monto de Apertura:</span>
+                        <span class="value">S/ <%= parseFloat(result.totalSales).toFixed(2) %></span>
+                    </div>
+                    <div class="summary-row">
+                        <span class="label">Total Ventas:</span>
+                        <span class="value success">S/ <%= parseFloat(result.totalSales).toFixed(2) %></span>
+                    </div>
+                    <div class="summary-row highlight">
+                        <span class="label">Monto Esperado:</span>
+                        <span class="value highlight">S/ <%= parseFloat(result.expectedAmount).toFixed(2) %></span>
+                    </div>
+                    <div class="summary-row highlight">
+                        <span class="label">Monto Real:</span>
+                        <span class="value highlight">S/ <%= parseFloat(result.closingAmount).toFixed(2) %></span>
+                    </div>
+                    <div class="summary-row <%= result.difference === 0 ? 'success' : result.difference > 0 ? 'warning' : 'danger' %>">
+                        <span class="label">Diferencia:</span>
+                        <span class="value">
+                            <%= result.difference === 0 ? '✓ Exacto' : (result.difference > 0 ? '+ ' : '- ') + 'S/ ' + Math.abs(result.difference).toFixed(2) %>
+                        </span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="actions">
+                <a href="/cash-register/<%= cashRegisterId %>" class="btn btn-primary">Ver Detalles</a>
+                <a href="/cash-register/history/all" class="btn btn-secondary">Historial de Cajas</a>
+                <a href="/" class="btn btn-success">Nueva Venta</a>
+            </div>
+        </div>
+    </div>
+
+    <%- include('../layouts/footer') %>

@@ -1,0 +1,105 @@
+<%- include('../layouts/header', { title: 'Reporte de Ventas - POS Dulces', activeTab: 'reports' }) %>
+
+    <div class="container">
+        <div class="page-header">
+            <h2>📈 Reporte de Ventas</h2>
+            <a href="/reports" class="btn btn-secondary">← Volver a Reportes</a>
+        </div>
+
+        <div class="filter-section card">
+            <div class="card-header">
+                <h3>Filtrar por Fecha</h3>
+            </div>
+            <div class="card-body">
+                <form method="GET" action="/reports/sales" class="filter-form">
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="startDate">Fecha Inicio</label>
+                            <input type="date" id="startDate" name="startDate" 
+                                   value="<%= startDate || '' %>" class="form-control" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="endDate">Fecha Fin</label>
+                            <input type="date" id="endDate" name="endDate" 
+                                   value="<%= endDate || '' %>" class="form-control" required>
+                        </div>
+                        <div class="form-group">
+                            <label>&nbsp;</label>
+                            <button type="submit" class="btn btn-primary btn-block">🔍 Filtrar</button>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <% if (salesByDate && salesByDate.length > 0) { %>
+            <div class="sales-report">
+                <div class="card">
+                    <div class="card-header">
+                        <h3>Resultados</h3>
+                    </div>
+                    <div class="card-body">
+                        <div class="report-summary">
+                            <div class="summary-item">
+                                <span class="summary-label">Total Ventas:</span>
+                                <span class="summary-value"><%= salesByDate.length %></span>
+                            </div>
+                            <div class="summary-item">
+                                <span class="summary-label">Monto Total:</span>
+                                <span class="summary-value">
+                                    S/ <%= salesByDate.reduce((sum, sale) => sum + parseFloat(sale.total), 0).toFixed(2) %>
+                                </span>
+                            </div>
+                        </div>
+
+                        <div class="sales-table">
+                            <table class="table">
+                                <thead>
+                                    <tr>
+                                        <th>ID</th>
+                                        <th>Fecha</th>
+                                        <th>Vendedor</th>
+                                        <th>Método</th>
+                                        <th class="text-right">Total</th>
+                                        <th>Acciones</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <% salesByDate.forEach(sale => { %>
+                                        <tr>
+                                            <td>#<%= sale.id %></td>
+                                            <td>
+                                                <%= new Date(sale.created_at).toLocaleString('es-PE') %>
+                                            </td>
+                                            <td><%= sale.username %></td>
+                                            <td>
+                                                <%= sale.payment_method === 'efectivo' ? '💵 Efectivo' : '💳 Tarjeta' %>
+                                            </td>
+                                            <td class="text-right">
+                                                S/ <%= parseFloat(sale.total).toFixed(2) %>
+                                            </td>
+                                            <td>
+                                                <a href="/sales/<%= sale.id %>" class="btn-icon">👁️</a>
+                                            </td>
+                                        </tr>
+                                    <% }) %>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        <% } else if (startDate && endDate) { %>
+            <div class="empty-state">
+                <div class="empty-icon">📊</div>
+                <h3>No hay ventas en este periodo</h3>
+                <p>Intenta con un rango de fechas diferente</p>
+            </div>
+        <% } else { %>
+            <div class="info-message">
+                <p>📅 Selecciona un rango de fechas para ver el reporte de ventas</p>
+            </div>
+        <% } %>
+    </div>
+
+    <%- include('../layouts/footer') %>
