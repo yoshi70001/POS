@@ -34,6 +34,12 @@
             <span class="nav-icon">📊</span>
             <span class="nav-label">Reportes</span>
         </a>
+        <% if (typeof currentUser !== 'undefined' && currentUser && currentUser.role === 'admin') { %>
+            <a href="/users" class="nav-item <%= typeof activeTab !== 'undefined' && activeTab === 'users' ? 'active' : '' %>">
+                <span class="nav-icon">👥</span>
+                <span class="nav-label">Usuarios</span>
+            </a>
+        <% } %>
         <a href="/cash-register/close" class="nav-item <%= typeof activeTab !== 'undefined' && activeTab === 'cash' ? 'active' : '' %>">
             <span class="nav-icon">💰</span>
             <span class="nav-label">Caja</span>

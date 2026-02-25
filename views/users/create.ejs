@@ -1,0 +1,102 @@
+<%- include('../layouts/header', { title: 'Crear Usuario - POS Dulces', activeTab: 'users' }) %>
+
+    <div class="container">
+        <div class="page-header">
+            <h2>➕ Crear Nuevo Usuario</h2>
+            <a href="/users" class="btn btn-secondary">← Volver a Usuarios</a>
+        </div>
+
+        <div class="form-container">
+            <div class="card">
+                <div class="card-header">
+                    <h3>Información del Usuario</h3>
+                </div>
+                <div class="card-body">
+                    <% if (error) { %>
+                        <div class="alert alert-danger">
+                            <strong>❌ Error:</strong> <%= error %>
+                        </div>
+                    <% } %>
+
+                    <form method="POST" action="/users" class="user-form">
+                        <div class="form-group">
+                            <label for="username">Nombre de Usuario *</label>
+                            <input type="text" 
+                                   id="username" 
+                                   name="username" 
+                                   class="form-control" 
+                                   value="<%= values.username || '' %>"
+                                   placeholder="Ej: juan.perez"
+                                   required
+                                   autofocus>
+                            <small class="form-text">El nombre de usuario debe ser único</small>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="password">Contraseña *</label>
+                            <input type="password" 
+                                   id="password" 
+                                   name="password" 
+                                   class="form-control" 
+                                   placeholder="Mínimo 6 caracteres"
+                                   required>
+                            <small class="form-text">Mínimo 6 caracteres</small>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="confirmPassword">Confirmar Contraseña *</label>
+                            <input type="password" 
+                                   id="confirmPassword" 
+                                   name="confirmPassword" 
+                                   class="form-control" 
+                                   placeholder="Repite la contraseña"
+                                   required>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="role">Rol *</label>
+                            <select id="role" name="role" class="form-control" required>
+                                <option value="">Seleccionar rol...</option>
+                                <option value="vendedor" <%= (values.role || '') === 'vendedor' ? 'selected' : '' %>>
+                                    💼 Vendedor
+                                </option>
+                                <option value="admin" <%= (values.role || '') === 'admin' ? 'selected' : '' %>>
+                                    👑 Administrador
+                                </option>
+                            </select>
+                            <small class="form-text">
+                                <strong>Administrador:</strong> Acceso completo a todas las funciones<br>
+                                <strong>Vendedor:</strong> Solo puede realizar ventas
+                            </small>
+                        </div>
+
+                        <div class="form-actions">
+                            <button type="submit" class="btn btn-primary btn-lg">✓ Crear Usuario</button>
+                            <a href="/users" class="btn btn-secondary">Cancelar</a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        document.querySelector('form').addEventListener('submit', function(e) {
+            const password = document.getElementById('password').value;
+            const confirmPassword = document.getElementById('confirmPassword').value;
+
+            if (password !== confirmPassword) {
+                e.preventDefault();
+                alert('Las contraseñas no coinciden');
+                return false;
+            }
+
+            if (password.length < 6) {
+                e.preventDefault();
+                alert('La contraseña debe tener al menos 6 caracteres');
+                return false;
+            }
+        });
+    </script>
+
+    <%- include('../layouts/footer') %>

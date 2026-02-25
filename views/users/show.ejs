@@ -1,0 +1,113 @@
+<%- include('../layouts/header', { title: user.username + ' - Usuarios', activeTab: 'users' }) %>
+
+    <div class="container">
+        <div class="page-header">
+            <h2>👤 Detalles del Usuario</h2>
+            <a href="/users" class="btn btn-secondary">← Volver a Usuarios</a>
+        </div>
+
+        <div class="user-details">
+            <div class="card">
+                <div class="card-header">
+                    <h3>
+                        <%= user.role === 'admin' ? '👑' : '👤' %> <%= user.username %>
+                        <%= user.id === currentUser.id ? '<span class="badge-you">(Tú)</span>' : '' %>
+                    </h3>
+                </div>
+                <div class="card-body">
+                    <div class="user-info-grid">
+                        <div class="info-item">
+                            <span class="label">ID:</span>
+                            <span class="value">#<%= user.id %></span>
+                        </div>
+                        <div class="info-item">
+                            <span class="label">Usuario:</span>
+                            <span class="value"><strong><%= user.username %></strong></span>
+                        </div>
+                        <div class="info-item">
+                            <span class="label">Rol:</span>
+                            <span class="value">
+                                <%= user.role === 'admin' 
+                                    ? '🛡️ Administrador - Acceso completo' 
+                                    : '💼 Vendedor - Ventas y operaciones' %>
+                            </span>
+                        </div>
+                        <div class="info-item">
+                            <span class="label">Fecha de Creación:</span>
+                            <span class="value">
+                                <%= new Date(user.created_at).toLocaleString('es-PE') %>
+                            </span>
+                        </div>
+                    </div>
+
+                    <div class="role-description">
+                        <% if (user.role === 'admin') { %>
+                            <div class="alert alert-info">
+                                <strong>🛡️ Permisos de Administrador:</strong><br>
+                                ✓ Gestión completa de productos<br>
+                                ✓ Gestión de usuarios<br>
+                                ✓ Acceso a todos los reportes<br>
+                                ✓ Gestión de caja
+                            </div>
+                        <% } else { %>
+                            <div class="alert alert-info">
+                                <strong>💼 Permisos de Vendedor:</strong><br>
+                                ✓ Realizar ventas en el POS<br>
+                                ✓ Ver reportes básicos<br>
+                                ✓ Gestión de caja
+                            </div>
+                        <% } %>
+                    </div>
+                </div>
+            </div>
+
+            <div class="actions">
+                <% if (currentUser.role === 'admin') { %>
+                    <a href="/users/<%= user.id %>/edit" class="btn btn-primary">✏️ Editar Usuario</a>
+                    <a href="/users/<%= user.id %>/change-password" class="btn btn-warning">🔑 Cambiar Contraseña</a>
+                <% } %>
+                <a href="/users" class="btn btn-secondary">Volver a la Lista</a>
+            </div>
+
+            <% if (currentUser.role === 'admin' && user.id !== currentUser.id) { %>
+                <div class="danger-zone">
+                    <h3>Zona de Peligro</h3>
+                    <p>Eliminar este usuario es una acción permanente y no se puede deshacer.</p>
+                    <button onclick="deleteUser(<%= user.id %>, '<%= user.username %>')" class="btn btn-danger">
+                        🗑️ Eliminar Usuario
+                    </button>
+                </div>
+            <% } %>
+        </div>
+    </div>
+
+    <% if (currentUser.role === 'admin' && user.id !== currentUser.id) { %>
+        <script>
+            async function deleteUser(userId, username) {
+                if (!confirm(`¿Estás seguro de que deseas eliminar al usuario "${username}"?\n\nEsta acción no se puede deshacer.`)) {
+                    return;
+                }
+
+                try {
+                    const response = await fetch('/users/' + userId, {
+                        method: 'DELETE',
+                        headers: {
+                            'Content-Type': 'application/json'
+                        }
+                    });
+
+                    if (response.ok) {
+                        alert('Usuario eliminado exitosamente');
+                        window.location.href = '/users';
+                    } else {
+                        const data = await response.json();
+                        alert('Error al eliminar: ' + (data.error || 'Error desconocido'));
+                    }
+                } catch (error) {
+                    alert('Error al eliminar el usuario');
+                }
+            }
+        </script>
+    <% } %>
+
+    <%- include('../layouts/footer') %>
