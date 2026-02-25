@@ -1,4 +1,4 @@
-<%- include('../layouts/header', { title: 'Usuarios - POS Dulces', activeTab: 'users' }) %>
+<%- include('../layouts/header', { title: 'Usuarios - POS Dulces' , activeTab: 'users' }) %>
 
     <div class="container">
         <div class="page-header">
@@ -6,21 +6,21 @@
             <a href="/users/new" class="btn btn-primary">+ Nuevo Usuario</a>
         </div>
 
-        <% if (users.length > 0) { %>
+        <% if (users.length> 0) { %>
             <div class="users-list">
-                <% users.forEach(user => { %>
+                <% users.forEach(user=> { %>
                     <div class="user-item">
                         <div class="user-info">
                             <div class="user-avatar">
-                                <%= user.role === 'admin' ? '👑' : '👤' %>
+                                <%= user.role==='admin' ? '👑' : '👤' %>
                             </div>
                             <div class="user-details">
                                 <h3 class="user-name">
                                     <%= user.username %>
-                                    <%= user.id === currentUser.id ? '<span class="badge-you">(Tú)</span>' : '' %>
+                                        <%- user.id===currentUser.id ? '<span class="badge-you">(Tú)</span>' : '' %>
                                 </h3>
                                 <div class="user-role">
-                                    <%= user.role === 'admin' ? '🛡️ Administrador' : '💼 Vendedor' %>
+                                    <%= user.role==='admin' ? '🛡️ Administrador' : '💼 Vendedor' %>
                                 </div>
                                 <div class="user-date">
                                     Creado: <%= new Date(user.created_at).toLocaleDateString('es-PE') %>
@@ -30,23 +30,24 @@
                         <div class="user-actions">
                             <a href="/users/<%= user.id %>" class="btn-icon" title="Ver">👁️</a>
                             <a href="/users/<%= user.id %>/edit" class="btn-icon" title="Editar">✏️</a>
-                            <a href="/users/<%= user.id %>/change-password" class="btn-icon" title="Cambiar Contraseña">🔑</a>
-                            <% if (user.id !== currentUser.id) { %>
-                                <button onclick="deleteUser(<%= user.id %>, '<%= user.username %>')" 
-                                        class="btn-icon btn-danger" title="Eliminar">🗑️</button>
-                            <% } %>
+                            <a href="/users/<%= user.id %>/change-password" class="btn-icon"
+                                title="Cambiar Contraseña">🔑</a>
+                            <% if (user.id !==currentUser.id) { %>
+                                <button onclick="deleteUser(<%= user.id %>, '<%= user.username %>')"
+                                    class="btn-icon btn-danger" title="Eliminar">🗑️</button>
+                                <% } %>
                         </div>
                     </div>
-                <% }) %>
+                    <% }) %>
             </div>
-        <% } else { %>
-            <div class="empty-state">
-                <div class="empty-icon">👥</div>
-                <h3>No hay usuarios registrados</h3>
-                <p>Crea el primer usuario para comenzar</p>
-                <a href="/users/new" class="btn btn-primary">Crear Usuario</a>
-            </div>
-        <% } %>
+            <% } else { %>
+                <div class="empty-state">
+                    <div class="empty-icon">👥</div>
+                    <h3>No hay usuarios registrados</h3>
+                    <p>Crea el primer usuario para comenzar</p>
+                    <a href="/users/new" class="btn btn-primary">Crear Usuario</a>
+                </div>
+                <% } %>
     </div>
 
     <script>

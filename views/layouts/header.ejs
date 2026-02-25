@@ -2,15 +2,20 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="theme-color" content="#2563eb">
     <title><%= typeof title !== 'undefined' ? title : 'POS Dulces' %></title>
+    <!-- Google Fonts: Inter -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="/css/style.css">
     <meta name="description" content="Sistema POS para ventas de dulces">
 </head>
 <body>
     <% if (typeof currentUser !== 'undefined' && currentUser) { %>
     <nav class="navbar">
-        <div class="nav-container">
+        <div class="nav-container glassmorphism">
             <div class="nav-brand">
                 <h1>🍬 POS Dulces</h1>
             </div>
